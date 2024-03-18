@@ -1,4 +1,4 @@
-##End-to-End ML Prediction Pipeline using Google Cloud
+#End-to-End ML Prediction Pipeline using Google Cloud
 
 This project involves uploading machine learning models to Google Cloud.
 
