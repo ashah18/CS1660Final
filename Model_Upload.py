@@ -7,7 +7,7 @@ import requests
 import shutil
 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json" #enter the path to your service account key
 
 class ModelUpload:
     def __init__(self, project_id, location, bucket_name = None):
