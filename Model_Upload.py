@@ -1,11 +1,13 @@
 from google.cloud import storage, aiplatform, functions_v1
 from google.api_core.exceptions import NotFound
 from google.protobuf import descriptor_pb2 as duration
+from pyngrok import ngrok
 import random
 import os 
 import requests
 import shutil
 
+ngrok.set_auth_token("#your ngrok token here")
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json" #enter the path to your service account key
 
@@ -130,3 +132,6 @@ prediction_url =  f"https://{location}-aiplatform.googleapis.com/v1/{enpoint_id}
 
 source_zip_path = shutil.make_archive('cloud_function','zip','Google_Cloud_Function/')
 ModelUploader.upload_cloud_function('Preprocess_function',source_zip_path,prediction_url)
+
+# grok = ngrok.connect()
+# print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1\"".format(grok.public_url))
