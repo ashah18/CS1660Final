@@ -1,13 +1,19 @@
 from google.cloud import storage, aiplatform, functions_v1
+from google.cloud.functions_v1.services.cloud_functions_service import CloudFunctionsServiceClient
+from google.cloud.functions_v1.types.functions import EventTrigger, CreateFunctionRequest, CloudFunction
 from google.api_core.exceptions import NotFound
 from google.protobuf import descriptor_pb2 as duration
-from pyngrok import ngrok
+import ngrok
+import glob
 import random
 import os 
 import requests
 import shutil
+from flask import Flask, request
 
-ngrok.set_auth_token("#your ngrok token here")
+app = Flask(__name__)
+
+ngrok.set_auth_token("Enter your ngrok token here")
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json" #enter the path to your service account key
 
@@ -41,8 +47,13 @@ class ModelUpload:
         if blobs:
             print(f'Model artifact already exists in {bucket_path}')
         else:
-            blob = bucket.blob(bucket_path)
-            blob.upload_from_filename(local_model_path,timeout=300)
+            rel_paths = glob.glob(local_model_path + '/**', recursive=True)
+            for rel_path in rel_paths:
+                remote_path = f'{bucket_path}/{"/".join(rel_path.split(os.sep)[1:])}'
+                if os.path.isfile(rel_path):
+                    blob = bucket.blob(remote_path)
+                    blob.upload_from_filename(rel_path,timeout =300)
+        
             print(f'The model has been uploaded in filename {bucket_path}')
             
     def deploy_model_to_vetex_ai_endpoint(self,model_display_name,model_artifact_uri):
@@ -77,12 +88,12 @@ class ModelUpload:
         print(f"Zip File{souce_zip_path} has been upladed to bucket {trigger_bucket}")
         return None
 
-    def upload_cloud_function(self,function_name,source_zip,prediction_url,trigger_bucket = None,entry_point = 'handle_request'):
+    def upload_cloud_function(self,function_name,source_zip,endpoint_id,ngrok_url,trigger_bucket = None,entry_point = 'handle_request'):
         if(not trigger_bucket):
             trigger_bucket = self.bucket_name
         self.upload_zip_to_buket(source_zip,trigger_bucket)
 
-        client = functions_v1.CloudFunctionsServiceClient()
+        client = CloudFunctionsServiceClient()
         parent = client.common_location_path(self.project_id, self.location)
         source_url = f"gs://{self.bucket_name}/{source_zip}" 
 
@@ -98,12 +109,14 @@ class ModelUpload:
             "timeout": "540s",
             "available_memory_mb": 256,
             "environment_variables": {
-                "PREDICTION_ENDPOINT": prediction_url
+                "PROJECT": "cloudcomputing-411615",
+                "ENDPOINT_ID": endpoint_id,
+                "ngrok_url": ngrok_url
             }
         }
         
        
-        request = functions_v1.CreateFunctionRequest(
+        request = CreateFunctionRequest(
         location=parent,
         function=cloud_function,
         )
@@ -114,24 +127,36 @@ class ModelUpload:
         print(f"Function {function_name} has been deployed.")
         print(f"Deployed function details: {response}")
 
+@app.route('/', methods=['POST'])
+def receive_prediction():
+    # Get the JSON data from the request
+    data = request.get_json()
+
+    # Do something with the data (e.g., print it)
+    print(data)
+
+    return "OK", 200
 
 project_id = 'cloudcomputing-411615'
 location = 'us-central1'
 #bucket_name = 'model_storage_2212'
 
-local_model_path = 'saved_model.pb'
-bucket_model_path = 'model/saved_model.pb' # The path in the bucket where the model will be stored
+local_model_path = 'Model/'
+bucket_model_path = 'model' # The path in the bucket where the model will be stored
 
 model_display_name = 'cloud_project_prediction_model'
+
+grok = ngrok.forward(5000)
 
 ModelUploader = ModelUpload(project_id,location)
 ModelUploader.upload_model(local_model_path,bucket_model_path)
 Model_Endpoint = ModelUploader.deploy_model_to_vetex_ai_endpoint(model_display_name,bucket_model_path)
-enpoint_id = Model_Endpoint.split('/')[-1]
-prediction_url =  f"https://{location}-aiplatform.googleapis.com/v1/{enpoint_id}:predict"
+endpoint_id = Model_Endpoint.split('/')[-1]
+# prediction_url =  f"https://{location}-aiplatform.googleapis.com/v1/{endpoint_id}:predict"
 
+print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1\"".format(grok.url()))
 source_zip_path = shutil.make_archive('cloud_function','zip','Google_Cloud_Function/')
-ModelUploader.upload_cloud_function('Preprocess_function',source_zip_path,prediction_url)
+ModelUploader.upload_cloud_function('Preprocess_function',source_zip_path,endpoint_id,grok.url())
+app.run(port=5000)
 
-# grok = ngrok.connect()
-# print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1\"".format(grok.public_url))
+
