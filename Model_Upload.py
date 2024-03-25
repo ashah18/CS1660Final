@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 ngrok.set_auth_token("Enter your ngrok token here")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json" #enter the path to your service account key
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "" #enter the path to your service account key
 
 class ModelUpload:
     def __init__(self, project_id, location, bucket_name = None):
