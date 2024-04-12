@@ -1,4 +1,4 @@
-from google.cloud import storage, aiplatform, functions_v1
+from google.cloud import storage, aiplatform, functions_v1, pubsub_v1
 from google.cloud.functions_v1.services.cloud_functions_service import CloudFunctionsServiceClient
 from google.cloud.functions_v1.types.functions import EventTrigger, CreateFunctionRequest, CloudFunction
 from google.api_core.exceptions import NotFound
@@ -13,9 +13,9 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-ngrok.set_auth_token("Enter your ngrok token here")
+ngrok.set_auth_token("2dxvW6uOCVD9I4MuRCVK7FegqfK_3RWagoHG5dE4wWUKbAXk7")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "" #enter the path to your service account key
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudcomputing-411615-465bc8c55d44.json" #enter the path to your service account key
 
 class ModelUpload:
     def __init__(self, project_id, location, bucket_name = None):
@@ -32,7 +32,6 @@ class ModelUpload:
         
 
     def create_bucket(self,bucket_name):
-        
         bucket = storage.Bucket(self.storage_client,bucket_name)
         bucket.location = self.location
         try: 
@@ -127,6 +126,40 @@ class ModelUpload:
         print(f"Function {function_name} has been deployed.")
         print(f"Deployed function details: {response}")
 
+    def create_pub_sub(self,topic_name,subscription_name, bucket_name):
+        publisher = pubsub_v1.PublisherClient()
+        topic_path = publisher.topic_path(self.project_id,topic_name)
+        # topic = publisher.create_topic(request={"name": topic_path})
+        # print(f"Topic {topic.name} created.")
+
+        email = self.storage_client.get_service_account_email()
+        print(email)
+        policy = publisher.get_iam_policy(request={"resource": topic_path})
+        policy.bindings.add(role="roles/pubsub.publisher", members=[email])
+
+        subscriber = pubsub_v1.SubscriberClient()
+        subscription_path = subscriber.subscription_path(self.project_id,subscription_name)
+        subscription = subscriber.create_subscription(request={"name": subscription_path, "topic": topic_path})
+        print(f"Subscription {subscription.name} created.")
+        
+        self.create_bucket(bucket_name)
+        print(f"Bucket {bucket_name} created.")
+
+        #notification 
+        bucket = self.storage_client.bucket(bucket_name)
+        notification = bucket.notification(
+            topic_name=topic_name,
+            event_types=['OBJECT_FINALIZE'],  # Trigger on new object creation
+            payload_format='JSON_API_V1'
+        )
+        notification.create()
+        print(f"Notification for bucket {bucket_name} created.")
+        return topic,subscription
+
+
+    #def pubsub_cloud_function(self, ) #function will create a cloud function that will get triggered whenever we upload a image to the bucket 
+
+
 @app.route('/', methods=['POST'])
 def receive_prediction():
     # Get the JSON data from the request
@@ -149,14 +182,23 @@ model_display_name = 'cloud_project_prediction_model'
 grok = ngrok.forward(5000)
 
 ModelUploader = ModelUpload(project_id,location)
-ModelUploader.upload_model(local_model_path,bucket_model_path)
-Model_Endpoint = ModelUploader.deploy_model_to_vetex_ai_endpoint(model_display_name,bucket_model_path)
-endpoint_id = Model_Endpoint.split('/')[-1]
+# ModelUploader.upload_model(local_model_path,bucket_model_path)
+# Model_Endpoint = ModelUploader.deploy_model_to_vetex_ai_endpoint(model_display_name,bucket_model_path)
+# endpoint_id = Model_Endpoint.split('/')[-1]
 # prediction_url =  f"https://{location}-aiplatform.googleapis.com/v1/{endpoint_id}:predict"
 
-print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1\"".format(grok.url()))
-source_zip_path = shutil.make_archive('cloud_function','zip','Google_Cloud_Function/')
-ModelUploader.upload_cloud_function('Preprocess_function',source_zip_path,endpoint_id,grok.url())
-app.run(port=5000)
+#make a function to make a pub/sub topic and whenever we upload a image then this will go the the topic and the cloud function will thet the subscription
+image_upload_bucket_name = "image_upload_storage"
+topic,subcription = ModelUploader.create_pub_sub('image_upload_topic','image_upload_subscription',image_upload_bucket_name)
+
+# ModelUploader.create_cloud_function('image_upload_function','image_upload_subscription')
+# ModelUploader.create_trigger('image_upload_function','image_upload_topic')
+
+#we will have a function that uplaods the cloud function, the cloud function is a subscrber and takes the message and sends it to the endpoint, and puts it in the bucket
+
+# print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1\"".format(grok.url()))
+# source_zip_path = shutil.make_archive('cloud_function','zip','Google_Cloud_Function/')
+# ModelUploader.upload_cloud_function('Preprocess_function',source_zip_path,endpoint_id,grok.url())
+# app.run(port=5000)
 
 
