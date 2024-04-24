@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MLDeployX</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MvcApp.styles.css" asp-append-version="true" />
+</head>
+<style>
+    /* Header style */
+
+    h1 {
+        font-size: 36px;
+        /* Adjust font size */
+        background: linear-gradient(to right, #764ba2, #667eea);
+        /* Gradient text color */
+        -webkit-background-clip: text;
+        /* Clip text to background */
+        -webkit-text-fill-color: transparent;
+        /* Make text transparent */
+    }
+
+    .container {
+        background-color: rgba(255, 255, 255, 0.9);
+        /* Semi-transparent white background */
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        /* Box shadow for depth */
+        width: 80%;
+        /* Set width of container */
+        max-width: 600px;
+        /* Maximum width for larger screens */
+        height: 55vh;
+    }
+
+    body {
+        background: linear-gradient(to right, #667eea, #764ba2);
+        /* Gradient background */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Use a sans-serif font */
+        margin: 0;
+        /* Remove default margin */
+        padding: 0;
+        /* Remove default padding */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+        position: relative;
+        /* Ensure full viewport height */
+    }
+
+    header {
+        text-align: center;
+        /* Center align header text */
+        margin-bottom: 30px;
+        /* Add space below header */
+    }
+
+    /* Footer style */
+    footer {
+        background-color: #333;
+        /* Dark grey footer background */
+        color: #fff;
+        /* White text color */
+        padding: 20px;
+        /* Add padding to footer */
+        text-align: center;
+        /* Center align footer text */
+        width: 100%;
+        /* Ensure footer spans full width */
+        flex-shrink: 0;
+        /* Prevent footer from shrinking */
+        position: absolute;
+        bottom: 0;
+
+    }
+
+    /* Style for buttons */
+    .button {
+        background-color: #6c48de;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px;
+        /* Add space around buttons */
+        cursor: pointer;
+        border-radius: 25px;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        /* Add shadow for depth */
+    }
+
+    /* Hover effect for buttons */
+    .button:hover {
+        background-color: #000;
+    }
+
+    /* Footer link style */
+    footer a {
+        color: #fff;
+        /* White text color for footer links */
+        text-decoration: none;
+        /* Remove underline from links */
+        transition: color 0.3s ease;
+        /* Smooth transition for color change */
+    }
+
+    /* Hover effect for footer links */
+    footer a:hover {
+        color: #ddd;
+        /* Lighter grey color on hover */
+    }
+</style>
+
+<body>
+    @* <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow
+    mb-3">
+    <div class="container-fluid">
+    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MLDeployX: AI Model
+    Deployment Suite for GCP</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+    data-bs-target=".navbar-collapse"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1">
+    <li class="nav-item">
+    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link text-dark" asp-area="" asp-controller="Home"
+    asp-action="Privacy">Privacy</a>
+    </li>
+    </ul>
+    </div>
+    </div>
+    </nav>
+    </header> *@
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <footer>
+        <a href="#">
+            <p style="color: #ffffff;">&copy; 2024 MLDeployX</p>
+        </a>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

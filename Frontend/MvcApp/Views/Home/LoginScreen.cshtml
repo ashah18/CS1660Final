@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Login Page";
+}
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .login-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: smaller;
+        margin-top: 10px;
+    }
+
+    .close {
+        font-size: smaller;
+    }
+
+    .container {
+        max-width: 500px;
+        max-height: 50vh;
+    }
+
+    .form-div {
+        margin-top: 5vh;
+    }
+</style>
+
+<body>
+    <header>
+        <h1 class="text-center">Admin Login</h1>
+    </header>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><span class="error-message"></span></strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="form-div">
+        @using (Html.BeginForm("VerifyUser", "Admin", FormMethod.Get, new
+        {
+            enctype = "multipart/form-data",
+            onsubmit = "return validateForm(event)",
+
+
+        }))
+        {
+            <div class="form-group">
+                <label for="UserName">User Name</label>
+                <input type="text" class="form-control" id="UserName" name="username" aria-describedby="emailHelp"
+                    placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" class="form-control" id="Password" name="password" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+            <a href="@Url.Action("Index", "Home")">
+                <button type="button" class="btn btn-light btn-block">Back</button>
+            </a>
+
+        }
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.alert').hide();
+            $('.close').on("click", function () {
+                $('.alert').hide();
+            });
+            if (@Html.Raw(Json.Serialize(Model.Values.StatusCode)) == 401) {
+                $('.error-message').empty();
+                $('.error-message').html("Invalid Credentials");
+                $('.alert').show();
+            }
+            else if (@Html.Raw(Json.Serialize(Model.Values.StatusCode)) == 400) {
+                $('.error-message').empty();
+                $('.error-message').html("Bad gateway. Please try again");
+                $('.alert').show();
+            }
+        });
+
+        function validateForm(event) {
+            var username = $('#UserName').val();
+            var password = $('#Password').val();
+            $('.error-message').empty();
+
+            var errorMessage = "";
+
+            if (!username || username.trim() === "") {
+                errorMessage += "Please enter a valid username.<br>";
+            }
+            if (!password || password.trim() === "") {
+                errorMessage += "Please enter a valid password.";
+            }
+
+            if (errorMessage !== "") {
+                $('.error-message').html(errorMessage);
+                $('.alert').show();
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>

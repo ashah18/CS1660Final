@@ -1,0 +1,205 @@
+@* @{
+ViewBag.Title = "Welcome ";
+} *@
+
+@model vwModelsandAdmins;
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css">
+    <script type="text/javascript" src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<style>
+    .container {
+        using Microsoft.AspNetCore.Http.HttpResults;
+        min-width: 500px;
+        min-height: 80vh;
+    }
+
+    tbody,
+    td,
+    tfoot,
+    th,
+    thead,
+    tr {
+        border-width: 1px;
+        text-align: center;
+    }
+
+    thead {
+        font-weight: bold;
+    }
+</style>
+<div class="text-center">
+    <h1 class="display-4">Welcome @Model.LoginUserDetails.name</h1>
+    @* <h1 class="display-4">Welcome Admin</h1> *@
+</div>
+<div>
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-addadmin-tab" data-bs-toggle="tab" data-bs-target="#nav-addadmin"
+                type="button" role="tab" aria-controls="nav-addadmin" aria-selected="true">Add Admin</button>
+            <button class="nav-link" id="nav-uploadmodel-tab" data-bs-toggle="tab" data-bs-target="#nav-uploadmodel"
+                type="button" role="tab" aria-controls="nav-uploadmodel" aria-selected="false">Upload Model</button>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-addadmin" role="tabpanel" aria-labelledby="nav-addadmin-tab">
+            <div>
+
+            </div>
+            <h2>
+                Add Admin
+            </h2>
+            <div class="alert alert-danger alert-dismissible fade" role="alert">
+                <strong><span class="error-message"></span></strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("AddAdmin", "Admin", FormMethod.Post, new
+            {
+                enctype = "multipart/form-data",
+                onsubmit = "return validateForm(event)",
+
+
+            }))
+            {
+                <div class="form-group">
+                    <label for="Name">Full Name</label>
+                    <input type="text" class="form-control" id="Name" name="name" placeholder="Enter Name">
+                </div>
+                <div class="form-group">
+                    <label for="UserName">User Name</label>
+                    <input type="text" class="form-control" id="UserName" name="username" placeholder="Enter Username">
+                </div>
+                <div class="form-group">
+                    <label for="Password">Password</label>
+                    <input type="password" class="form-control" id="Password" name="password" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Submit</button>
+            }
+            <div class="col-md-6">
+                <table class="SavedAdmins">
+                    <thead>
+                        <tr>
+                            <td> Id </td>
+                            <td> Name</td>
+                            <td> UserName </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.adminCreds)
+                        {
+                            <tr>
+                                <td> @i.Id </td>
+                                <td> @i.name </td>
+                                <td> @i.username</td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nav-uploadmodel" role="tabpanel" aria-labelledby="nav-uploadmodel-tab">
+            <div>
+                <h2>
+                    Upload File
+                </h2>
+                @using (Html.BeginForm("UploadModel", "Admin", FormMethod.Post, new
+                {
+                    enctype = "multipart/form-data"
+                }))
+                {
+                    <div>
+                        @* @Html.TextBox("file", "", new { type = "file", }) <br /> *@
+                        <input type="file" name="file" accept="application/x-zip" />
+                        <input type="submit" value="Upload" />
+                        @ViewBag.Message
+                    </div>
+                }
+            </div>
+            <div>
+                <table class="SavedModels">
+                    <thead>
+                        <tr>
+                            <td> Id </td>
+                            <td> Model Name</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.SavedModels)
+                        {
+                            <tr>
+                                <td> @i.id </td>
+                                <td> @i.bucket_name </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        var SavedModels = $('.SavedModels').DataTable({
+            responsive: true,
+            dom: 'blfrtip'
+        });
+        var SavedAdmins = $('.SavedAdmins').DataTable({
+            responsive: true,
+            dom: 'blfrtip'
+        });
+        $('.alert').hide();
+        $('.close').on("click", function () {
+            $('.alert').hide();
+        });
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
+            var tabID = $(event.target).attr('data-bs-target');
+            if (tabID === '#nav-uploadmodel') {
+                table1.columns.adjust().responsive.recalc();
+            }
+            else if (tabID == '#nav-addadmin') {
+                table2.columns.adjust().responsive.recalc();
+            }
+        });
+
+
+    });
+    function validateForm(event) {
+        var name = $('#Name').val();
+        var username = $('#UserName').val();
+        var password = $('#Password').val();
+        $('.error-message').empty();
+
+        var errorMessage = "";
+        if (!name || name.trim() === "") {
+            errorMessage += "Please enter a you name.<br>";
+        }
+        if (!username || username.trim() === "") {
+            errorMessage += "Please enter a valid username.<br>";
+        }
+        if (!password || password.trim() === "") {
+            errorMessage += "Please enter a valid password.";
+        }
+
+        if (errorMessage !== "") {
+            $('.error-message').html(errorMessage);
+            $('.alert').show();
+            return false;
+        }
+        return true;
+    }
+</script>

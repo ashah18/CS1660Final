@@ -1,0 +1,27 @@
+<head>
+</head>
+
+<style>
+    .backButton {
+        margin-top: 12vw;
+    }
+</style>
+
+<div>
+    @using (Html.BeginForm("Predict_Output", "Guest", FormMethod.Post, new
+    {
+        enctype = "multipart/form-data"
+    }))
+    {
+        <input type="file" name="file" for="file" accept="" />
+        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+    }
+</div>
+<div class="predictionDiv">
+    @ViewBag.Message
+</div>
+<div class="backButton col-md-2">
+    <a href="@Url.Action("Index", "Guest")">
+        <button type="button" class="btn btn-primary btn-block">&#x2190; Back</button>
+    </a>
+</div>

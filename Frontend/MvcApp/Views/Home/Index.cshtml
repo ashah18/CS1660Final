@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>@ViewData["Title"]</title>
+    <style>
+        /* Button container */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            /* Allow buttons to wrap */
+            margin-top: 15vh;
+            /* Add space above button container */
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <header>
+            <h1>Welcome to MLDeployX</h1>
+        </header>
+
+        <div class="button-container">
+            <a href='@Url.Action("NavigateToLoginScreen", "Home")'>
+                <button class="button">Admin Screen</button>
+            </a>
+            <a href='@Url.Action("Index", "Guest")'>
+                <button class="button">Guest Screen</button>
+            </a>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
