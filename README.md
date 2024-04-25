@@ -20,7 +20,7 @@ It also contains the Fast API, which is hosted on Google Run. The Fast API conta
 
 ### Google_Cloud_Function/main.py
 
-This file contains the code for a Google Cloud Function that is deployed on Google Cloud. The function is triggered by a file upload in Google Cloud Storage bucket.
+This file contains the code for a Google Cloud Function that is deployed on Google Cloud. A file upload in Google Cloud Storage bucket triggers the function.
 
 The function's code handles the preprocessing part and sends the preprocessed image to the vertex ai endpoint, where the model resides. It also recives the output from the model and sends it to the API using ngrok.
 
@@ -28,7 +28,7 @@ The function's code handles the preprocessing part and sends the preprocessed im
 
 - **Google Cloud Storage**: Used to store the model files that are uploaded via the `/upload_model` endpoint. It also triggers the cloud function when a new file is uploaded.
 
-- **Google Cloud Functions**: Runs serverless code in response to events in the Google Cloud environment. In this project, a function is triggered when a new file is uploaded to Google Cloud Storage. The function handles preprocessing of the image and sends the preprocessed image to the Vertex AI endpoint.
+- **Google Cloud Functions**: Runs serverless code in response to events in the Google Cloud environment. In this project, a function is triggered when a new file is uploaded to Google Cloud Storage. The function handles the preprocessing of the image and sends the preprocessed image to the Vertex AI endpoint.
 
 - **Google Vertex AI**: Hosts the machine learning model and makes predictions. Takes the preprocessed image from the Google Cloud Function as input and returns a prediction.
 
