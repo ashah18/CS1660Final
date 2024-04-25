@@ -22,10 +22,6 @@ try
     conn.Open();
     builder.Services.AddDbContext<ApplicationDBContext>(
         options => options.UseMySql(connection_string, ServerVersion.AutoDetect(connection_string)));
-    // options => options.UseMySql("server=34.30.13.133;port=3306;database=SaveModel;user=root;password=mysqlserver"));
-    // builder.Services.AddScoped<DbContext, ApplicationDBContext>();
-    // builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<ApplicationDBContext>());
-    // builder.Services.AddScoped<AdminController>();
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 catch (Exception e)
@@ -41,6 +37,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

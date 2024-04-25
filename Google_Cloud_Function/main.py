@@ -9,7 +9,6 @@ import json
 import os
 
 def preprocess_file(data):
-    # Implement your preprocessing logic here
     return data
 
 def predict_custom_trained_model_sample(
@@ -67,7 +66,6 @@ def handle_request(event,context):
     predictions = predict_custom_trained_model_sample(project, endpoint_id, preprocessed_data)
     prediction_json = json_format.MessageToJson(predictions._pb)
     ngrok_url = os.environ['ngrok_url']
-    #send reponse to ngrok_url
     requests.post(f"{ngrok_url}/receive_prediction", data = prediction_json) 
     
     return None
